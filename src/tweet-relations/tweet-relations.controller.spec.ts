@@ -42,6 +42,7 @@ describe('TweetRelationsController', () => {
       subject: 2,
       verb: 'replies_to',
       object: 3,
+      index: null,
       created: new Date(),
       modified: new Date(),
     } satisfies TweetRelation;
@@ -63,6 +64,7 @@ describe('TweetRelationsController', () => {
       subject: 2,
       verb: 'refer',
       object: 3,
+      index: null,
       created: new Date(),
       modified: new Date(),
     } satisfies TweetRelation;
@@ -118,6 +120,7 @@ describe('TweetRelationsController', () => {
       subject: 2,
       verb: 'quotes',
       object: 3,
+      index: null,
       created: new Date(),
       modified: new Date(),
     } satisfies TweetRelation;
@@ -127,6 +130,35 @@ describe('TweetRelationsController', () => {
       relation,
     );
     expect(service.update).toHaveBeenCalledWith(1, { verb: 'quotes' });
+  });
+
+  it('updates an index and permits clearing it', async () => {
+    const relation = {
+      id: 1,
+      subject: 2,
+      verb: 'refer',
+      object: 3,
+      index: 4,
+      created: new Date(),
+      modified: new Date(),
+    } satisfies TweetRelation;
+    service.update.mockResolvedValue(relation);
+
+    await expect(controller.update('1', { index: 4 })).resolves.toEqual(
+      relation,
+    );
+    expect(service.update).toHaveBeenLastCalledWith(1, { index: 4 });
+
+    await expect(controller.update('1', { index: null })).resolves.toEqual(
+      relation,
+    );
+    expect(service.update).toHaveBeenLastCalledWith(1, { index: null });
+  });
+
+  it('rejects a non-integer index', async () => {
+    await expect(controller.update('1', { index: 1.5 })).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects an empty update request', async () => {

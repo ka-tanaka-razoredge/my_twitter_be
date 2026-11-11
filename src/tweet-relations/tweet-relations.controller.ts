@@ -20,6 +20,7 @@ type TweetRelationBody = {
   subject?: unknown;
   verb?: unknown;
   object?: unknown;
+  index?: unknown;
 };
 
 function parsePositiveSafeInteger(value: unknown, name: string): number {
@@ -40,6 +41,19 @@ function parseVerb(value: unknown): string {
   }
 
   return value.trim();
+}
+
+function parseIndex(value: unknown): number | null {
+  if (value === null) {
+    return null;
+  }
+
+  const parsed = typeof value === 'number' ? value : Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new BadRequestException('index must be an integer or null');
+  }
+
+  return parsed;
 }
 
 @Controller('tweet-relations')
@@ -119,11 +133,12 @@ export class TweetRelationsController {
       ...(body?.object === undefined
         ? {}
         : { object: parsePositiveSafeInteger(body.object, 'object') }),
+      ...(body?.index === undefined ? {} : { index: parseIndex(body.index) }),
     };
 
     if (Object.keys(data).length === 0) {
       throw new BadRequestException(
-        'At least one of subject, verb, or object must be provided',
+        'At least one of subject, verb, object, or index must be provided',
       );
     }
 

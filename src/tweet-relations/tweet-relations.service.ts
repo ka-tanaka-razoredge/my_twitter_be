@@ -13,6 +13,10 @@ type TweetRelationData = {
   object: number;
 };
 
+type TweetRelationUpdateData = Partial<TweetRelationData> & {
+  index?: number | null;
+};
+
 @Injectable()
 export class TweetRelationsService {
   constructor(
@@ -23,7 +27,7 @@ export class TweetRelationsService {
   async findAll(filters: Partial<TweetRelationData>): Promise<TweetRelation[]> {
     return this.tweetRelationsRepository.find({
       where: filters,
-      order: { created: 'DESC', id: 'DESC' },
+      order: { index: 'ASC', id: 'DESC' },
     });
   }
 
@@ -42,7 +46,7 @@ export class TweetRelationsService {
   ): Promise<TweetRelation[]> {
     return this.tweetRelationsRepository.find({
       where: { object: objectId, verb },
-      order: { created: 'DESC', id: 'DESC' },
+      order: { index: 'ASC', id: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -64,7 +68,7 @@ export class TweetRelationsService {
 
   async update(
     id: number,
-    data: Partial<TweetRelationData>,
+    data: TweetRelationUpdateData,
   ): Promise<TweetRelation> {
     const relation = await this.findById(id);
     Object.assign(relation, data);

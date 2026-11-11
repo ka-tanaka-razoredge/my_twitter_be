@@ -20,6 +20,9 @@ export class TweetRelation {
   @Column({ type: 'int' })
   object: number;
 
+  @Column({ type: 'int', nullable: true })
+  index: number | null;
+
   @CreateDateColumn({ type: 'datetime', nullable: true })
   created: Date | null;
 
